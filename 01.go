@@ -32,25 +32,44 @@ func createMap(list []int) map[int]int {
 	return m
 }
 
-// compare the other slice to the map
+// compare the other slice to the map (part 1)
+// func compare(m map[int]int, s []int) int {
+// 	sum := 0
+// 	for k, v := range m {
+// 		diff := 0
+//
+// 		if s[k] == v {
+// 			diff = 0
+// 		}
+//
+// 		if s[k] > v {
+// 			diff = s[k] - v
+// 		}
+//
+// 		if s[k] < v {
+// 			diff = v - s[k]
+// 		}
+//
+// 		sum = sum + diff
+// 	}
+//
+// 	return sum
+// }
+
+// see how many times a value in the left list appears in the right list
+// multiply that value by amount of appearances
+// the add up all of those values
 func compare(m map[int]int, s []int) int {
 	sum := 0
-	for k, v := range m {
-		diff := 0
-
-		if s[k] == v {
-			diff = 0
+	for i := range s {
+		multiplyBy := 0
+		for _, v := range m {
+			if s[i] == v {
+				multiplyBy++
+			}
 		}
-
-		if s[k] > v {
-			diff = s[k] - v
-		}
-
-		if s[k] < v {
-			diff = v - s[k]
-		}
-
-		sum = sum + diff
+		multiplyBy = s[i] * multiplyBy
+		sum += multiplyBy
 	}
 
 	return sum
@@ -64,9 +83,10 @@ func firstProblem() {
 	sortList(l1)
 	sortList(l2)
 
-	m := createMap(l1)
+	// For part 2 of the question, the right list (list 2) needs to be in the map
+	m := createMap(l2)
 
-	res := compare(m, l2)
+	res := compare(m, l1)
 
-	fmt.Println(res)
+	fmt.Println("Problem 1:", res)
 }
