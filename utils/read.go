@@ -41,3 +41,9 @@ func GetIntRecords(file string) []int {
 
 	return nums
 }
+
+func GetSpaceSeperatedNums(file string) []int {
+	var nums []int
+
+	return nums
+}
