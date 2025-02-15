@@ -5,10 +5,6 @@ import (
 	"fmt"
 )
 
-// TODO: I need a way to make comparrisons to beyond just i-1, use a map
-// perhaps you could do a sort and if nothing changes that means things are okay?
-// or a different way perhaps
-
 func checkIncrementing(nums []int) bool {
 	order := true
 	for i := range nums {
