@@ -1,10 +1,13 @@
 package utils
 
 import (
+	"bufio"
 	"encoding/csv"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // GetIntRecords opens the csv file, checks the validity and adds each number
@@ -12,14 +15,14 @@ import (
 func GetIntRecords(file string) []int {
 	f, err := os.Open(file)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal("Error opening file", err)
 	}
 	defer f.Close()
 
 	reader := csv.NewReader(f)
 	records, err := reader.ReadAll()
 	if err != nil {
-		fmt.Println("Error reading csv", err)
+		log.Fatal("Error reading file", err)
 		return nil
 	}
 
@@ -42,8 +45,30 @@ func GetIntRecords(file string) []int {
 	return nums
 }
 
-func GetSpaceSeperatedNums(file string) []int {
-	var nums []int
+func GetSpaceSeperatedNums(file string) [][]int {
+	var sliceOfNums [][]int
 
-	return nums
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal("Error opening file", err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		var lineNums []int
+		fields := strings.Fields(scanner.Text())
+		for _, field := range fields {
+			num, err := strconv.Atoi(field)
+			if err != nil {
+				log.Fatal("String is not an int", err)
+			}
+			lineNums = append(lineNums, num)
+		}
+		sliceOfNums = append(sliceOfNums, lineNums)
+	}
+
+
+	return sliceOfNums
 }
