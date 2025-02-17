@@ -48,7 +48,7 @@ func tryRemovals(orig []int, bl map[int]int, try func([]int) (bool, map[int]int)
 		newLevels := []int{}
 
 		for p, v := range orig {
-			// Create a new levels missing one of the bad levels
+			// Create a new level missing one of the bad levels
 			if p != pos {
 				newLevels = append(newLevels, v)
 			}
