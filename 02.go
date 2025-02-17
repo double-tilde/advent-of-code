@@ -5,82 +5,63 @@ import (
 	"fmt"
 )
 
-func checkIncrementing(nums []int) (bool, []int) {
-	incrementing := true
-	var badLevels []int
+func checkIncrementing(nums []int) (bool, map[int]int) {
+	inc := true
+	bl := make(map[int]int)
 
 	if len(nums) <= 1 {
-		return incrementing, badLevels
+		return inc, bl
 	}
 
 	for i := 1; i < len(nums); i++ {
 		if nums[i-1] >= nums[i] || nums[i]-nums[i-1] > 3 {
-			incrementing = false
-			badLevels = append(badLevels, nums[i-1])
+			inc = false
+			bl[i-1] = nums[i-1]
+			bl[i] = nums[i]
 		}
 	}
 
-	return incrementing, badLevels
+	return inc, bl
 }
 
-func checkDecrementing(nums []int) (bool, []int) {
-	decrementing := true
-	var badLevels []int
+func checkDecrementing(nums []int) (bool, map[int]int) {
+	dec := true
+	bl := make(map[int]int)
 
 	if len(nums) <= 1 {
-		return decrementing, badLevels
+		return dec, bl
 	}
 
 	for i := 1; i < len(nums); i++ {
 		if nums[i-1] <= nums[i] || nums[i-1]-nums[i] > 3 {
-			decrementing = false
-			badLevels = append(badLevels, nums[i-1])
+			dec = false
+			bl[i-1] = nums[i-1]
+			bl[i] = nums[i]
 		}
 	}
 
-	return decrementing, badLevels
+	return dec, bl
 }
 
-func tryReomvals(original, badLevels []int) (bool, int) {
-	for i := range badLevels {
-		newLevels := []int{}
+func tryReomvals(orig []int, bl map[int]int, try func([]int) (bool, map[int]int)) bool {
+	for pos := range bl {
+		nl := []int{}
 
-		for j := range original {
-			if original[j] != badLevels[i] {
-				newLevels = append(newLevels, original[j])
+		for p, v := range orig {
+			// Create a new levels missing one of the bad levels
+			if p != pos {
+				nl = append(nl, v)
 			}
 		}
 
-		safe, _ := checkIncrementing(newLevels)
+		safe, _ := try(nl)
 
 		if safe {
-			return true, badLevels[i]
+			return true
 		}
 	}
 
-	return false, 0
-}
-
-func tryReomvalsDec(original, badLevels []int) (bool, int) {
-	for i := range badLevels {
-		newLevels := []int{}
-
-		for j := range original {
-			// TODO: This is removing both 4s in 8 6 4 4 1
-			if original[j] != badLevels[i] {
-				newLevels = append(newLevels, original[j])
-			}
-		}
-
-		fmt.Println("new levels dec", newLevels)
-		safe, _ := checkDecrementing(newLevels)
-
-		if safe {
-			return true, badLevels[i]
-		}
-	}
-
-	return false, 0
+	return false
 }
 
 func loop(list [][]int) int {
@@ -91,40 +72,32 @@ func loop(list [][]int) int {
 		original = append(original, nums...)
 		safe := false
 
-		fmt.Println("checking levels for", nums)
-
+		// See if levels are incrementing
 		incrementing, badLevels := checkIncrementing(nums)
-
 		if incrementing {
 			safeStrings++
-			fmt.Println("original order safe inc", nums)
 		}
 
-		r := 0
-
+		// See if removing one level makes levels increment
 		if !incrementing && len(badLevels) > 0 {
-			safe, r = tryReomvals(original, badLevels)
+			safe = tryReomvals(original, badLevels, checkIncrementing)
 		}
-
 		if safe {
 			safeStrings++
-			fmt.Println("one reomval safe inc", nums, r)
 		}
 
+		// See if levels are decrementing
 		decrementing, badLevels := checkDecrementing(nums)
-
 		if decrementing {
 			safeStrings++
-			fmt.Println("original order safe dec", nums)
 		}
 
+		// See if removing one level makes levels decrement
 		if !decrementing && len(badLevels) > 0 {
-			safe, r = tryReomvalsDec(original, badLevels)
+			safe = tryReomvals(original, badLevels, checkDecrementing)
 		}
-
 		if safe {
 			safeStrings++
-			fmt.Println("one reomval safe dec", nums, r)
 		}
 
 	}

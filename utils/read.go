@@ -69,6 +69,5 @@ func GetSpaceSeperatedNums(file string) [][]int {
 		sliceOfNums = append(sliceOfNums, lineNums)
 	}
 
-
 	return sliceOfNums
 }
