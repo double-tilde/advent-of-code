@@ -5,58 +5,58 @@ import (
 	"fmt"
 )
 
-func checkIncrementing(nums []int) (bool, map[int]int) {
-	inc := true
+func isIncrementing(level []int) (bool, map[int]int) {
+	isInc := true
 	bl := make(map[int]int)
 
-	if len(nums) <= 1 {
-		return inc, bl
+	if len(level) <= 1 {
+		return isInc, bl
 	}
 
-	for i := 1; i < len(nums); i++ {
-		if nums[i-1] >= nums[i] || nums[i]-nums[i-1] > 3 {
-			inc = false
-			bl[i-1] = nums[i-1]
-			bl[i] = nums[i]
+	for i := 1; i < len(level); i++ {
+		if level[i-1] >= level[i] || level[i]-level[i-1] > 3 {
+			isInc = false
+			bl[i-1] = level[i-1]
+			bl[i] = level[i]
 		}
 	}
 
-	return inc, bl
+	return isInc, bl
 }
 
-func checkDecrementing(nums []int) (bool, map[int]int) {
-	dec := true
+func isDecrementing(level []int) (bool, map[int]int) {
+	isDec := true
 	bl := make(map[int]int)
 
-	if len(nums) <= 1 {
-		return dec, bl
+	if len(level) <= 1 {
+		return isDec, bl
 	}
 
-	for i := 1; i < len(nums); i++ {
-		if nums[i-1] <= nums[i] || nums[i-1]-nums[i] > 3 {
-			dec = false
-			bl[i-1] = nums[i-1]
-			bl[i] = nums[i]
+	for i := 1; i < len(level); i++ {
+		if level[i-1] <= level[i] || level[i-1]-level[i] > 3 {
+			isDec = false
+			bl[i-1] = level[i-1]
+			bl[i] = level[i]
 		}
 	}
 
-	return dec, bl
+	return isDec, bl
 }
 
-func tryReomvals(orig []int, bl map[int]int, try func([]int) (bool, map[int]int)) bool {
+func tryRemovals(orig []int, bl map[int]int, try func([]int) (bool, map[int]int)) bool {
 	for pos := range bl {
-		nl := []int{}
+		newLevels := []int{}
 
 		for p, v := range orig {
 			// Create a new levels missing one of the bad levels
 			if p != pos {
-				nl = append(nl, v)
+				newLevels = append(newLevels, v)
 			}
 		}
 
-		safe, _ := try(nl)
+		ok, _ := try(newLevels)
 
-		if safe {
+		if ok {
 			return true
 		}
 	}
@@ -64,50 +64,50 @@ func tryReomvals(orig []int, bl map[int]int, try func([]int) (bool, map[int]int)
 	return false
 }
 
-func loop(list [][]int) int {
-	safeStrings := 0
+func loop(sliceOfLevels [][]int) int {
+	safeLevels := 0
 
-	for _, nums := range list {
+	for _, level := range sliceOfLevels {
 		original := []int{}
-		original = append(original, nums...)
-		safe := false
+		original = append(original, level...)
+		ok := false
 
-		// See if levels are incrementing
-		incrementing, badLevels := checkIncrementing(nums)
+		// Check level is incrementing
+		incrementing, badLevels := isIncrementing(level)
 		if incrementing {
-			safeStrings++
+			safeLevels++
 		}
 
-		// See if removing one level makes levels increment
+		// If not, try removing one bad level
 		if !incrementing && len(badLevels) > 0 {
-			safe = tryReomvals(original, badLevels, checkIncrementing)
+			ok = tryRemovals(original, badLevels, isIncrementing)
 		}
-		if safe {
-			safeStrings++
+		if ok {
+			safeLevels++
 		}
 
-		// See if levels are decrementing
-		decrementing, badLevels := checkDecrementing(nums)
+		// Check level is decrementing
+		decrementing, badLevels := isDecrementing(level)
 		if decrementing {
-			safeStrings++
+			safeLevels++
 		}
 
-		// See if removing one level makes levels decrement
+		// If not, try removing one bad level
 		if !decrementing && len(badLevels) > 0 {
-			safe = tryReomvals(original, badLevels, checkDecrementing)
+			ok = tryRemovals(original, badLevels, isDecrementing)
 		}
-		if safe {
-			safeStrings++
+		if ok {
+			safeLevels++
 		}
 
 	}
 
-	return safeStrings
+	return safeLevels
 }
 
 func secondProblem() {
-	listOfNums := utils.GetSpaceSeperatedNums("./assets/02-file.txt")
+	sliceOfLevels := utils.GetSpaceSeperatedNums("./assets/02-file.txt")
 
-	safe := loop(listOfNums)
+	safe := loop(sliceOfLevels)
 	fmt.Println("Problem 2:", safe)
 }
