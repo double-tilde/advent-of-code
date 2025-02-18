@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-// GetIntRecords opens the csv file, checks the validity and adds each number
-// to the num slice
 func GetIntRecords(file string) []int {
 	f, err := os.Open(file)
 	if err != nil {
@@ -70,4 +68,26 @@ func GetSpaceSeperatedNums(file string) [][]int {
 	}
 
 	return sliceOfNums
+}
+
+func GetOneString(file string) string {
+	var s string
+
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal("Error opening file", err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		strs := strings.Fields(scanner.Text())
+
+		for _, str := range strs {
+			s += str
+		}
+	}
+
+	return s
 }

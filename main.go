@@ -6,4 +6,5 @@ func main() {
 	fmt.Println("Advent of Code 2024")
 	firstProblem()
 	secondProblem()
+	thirdProblem()
 }
