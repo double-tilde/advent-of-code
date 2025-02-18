@@ -8,32 +8,31 @@ import (
 	"strconv"
 )
 
-func getValidFuncs(str string) []string {
-	var validFuncs []string
-
-	pattern := `mul\((\d{1,3}),(\d{1,3})\)`
-
-	r, err := regexp.Compile(pattern)
+func compileRegex(p string) *regexp.Regexp {
+	r, err := regexp.Compile(p)
 	if err != nil {
 		log.Fatal("Invalid regex", err)
 	}
 
-	validFuncs = r.FindAllString(str[:], -1)
-
-	return validFuncs
+	return r
 }
 
-func getValidNumsSet(strs []string) [][]int {
-	var validNumsSet [][]int
-	var validNums []int
+func findMulFuncs(input string) []string {
+	var mulFuncs []string
+
+	r := compileRegex(`mul\((\d{1,3}),(\d{1,3})\)`)
+
+	mulFuncs = r.FindAllString(input[:], -1)
+
+	return mulFuncs
+}
+
+func getNumberPairs(strs []string) [][]int {
+	var validNumPairs []int
+	var numPairs [][]int
 
 	for _, str := range strs {
-		pattern := `(\d{1,3}),(\d{1,3})`
-
-		r, err := regexp.Compile(pattern)
-		if err != nil {
-			log.Fatal("Invalid regex", err)
-		}
+		r := compileRegex(`(\d{1,3}),(\d{1,3})`)
 
 		// Extract matched number pairs
 		matches := r.FindAllStringSubmatch(str, -1)
@@ -43,35 +42,35 @@ func getValidNumsSet(strs []string) [][]int {
 				num1, _ := strconv.Atoi(match[1])
 				num2, _ := strconv.Atoi(match[2])
 
-				validNums = []int{num1, num2}
-				validNumsSet = append(validNumsSet, validNums)
+				validNumPairs = []int{num1, num2}
+				numPairs = append(numPairs, validNumPairs)
 			}
 		}
 
 	}
 
-	return validNumsSet
+	return numPairs
 }
 
-func calculate(numsSet [][]int) int {
-	answer := 0
+func calculateProduct(numPairs [][]int) int {
+	res := 0
 
-	for _, nums := range numsSet {
-		for i := range nums {
+	for _, pair := range numPairs {
+		for i := range pair {
 			if i == 0 {
-				answer += nums[i] * nums[i+1]
+				res += pair[i] * pair[i+1]
 			}
 		}
 	}
-	return answer
+	return res
 }
 
 func thirdProblem() {
-	str := utils.GetOneString("./assets/03-file.txt")
+	input := utils.GetOneString("./assets/03-file.txt")
 
-	validFuncs := getValidFuncs(str)
-	validNumsSet := getValidNumsSet(validFuncs)
-	answer := calculate(validNumsSet)
+	mulFuncs := findMulFuncs(input)
+	numberPairs := getNumberPairs(mulFuncs)
+	res := calculateProduct(numberPairs)
 
-	fmt.Println("Problem 3:", answer)
+	fmt.Println("Problem 3:", res)
 }
