@@ -91,3 +91,23 @@ func GetOneString(file string) string {
 
 	return s
 }
+
+func GetLineSeperatedRecords(file string) []string {
+	records := []string{}
+
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal("Error opening file", err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		strs := scanner.Text()
+
+		records = append(records, strs)
+	}
+
+	return records
+}

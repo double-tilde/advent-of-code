@@ -7,4 +7,5 @@ func main() {
 	firstProblem()
 	secondProblem()
 	thirdProblem()
+	fourthProblem()
 }
