@@ -10,6 +10,12 @@ import (
 	"time"
 )
 
+var (
+	reset  = "\033[0m"
+	green  = "\033[32m"
+	yellow = "\033[33m"
+)
+
 func createMatrix(input []string) [][]rune {
 	var matrix [][]rune
 
@@ -37,11 +43,24 @@ func searchWord(
 	ticker *time.Ticker,
 ) bool {
 	for i := 0; i < len(word); i++ {
+		var uiMatrix string
+
+		for j := range matrix {
+			for k := range matrix[j] {
+				if row == j && col == k {
+					uiMatrix += yellow + string(matrix[j][k]) + reset
+				} else {
+					uiMatrix += string(matrix[j][k])
+				}
+			}
+			uiMatrix += "\n"
+		}
+
+		ui.CreateUI(uiMatrix, sigChan, ticker)
+
 		if !isInBounds(matrix, row, col) || matrix[row][col] != rune(word[i]) {
 			return false
 		}
-
-		ui.CreateUI(matrix, row, col, sigChan, ticker)
 
 		row += dir[0]
 		col += dir[1]

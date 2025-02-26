@@ -17,12 +17,10 @@ func DrawUI(text string) {
 	fmt.Print(text)
 }
 
-// TODO: Chane this to accept strings rather than the [][]rune
-
-func CreateUI(matrix [][]rune, row, col int, sigChan chan os.Signal, ticker *time.Ticker) {
+func CreateUI(text string, sigChan chan os.Signal, ticker *time.Ticker) {
 	select {
 	case <-ticker.C:
-		DrawUI(string(matrix[row][col]))
+		DrawUI(text)
 	case <-sigChan:
 		fmt.Println(ShowCursor)
 		fmt.Print(ClearScreen)
