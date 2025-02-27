@@ -34,10 +34,6 @@ func isInBounds(matrix [][]rune, row, col int) bool {
 	return row >= 0 && row < len(matrix) && col >= 0 && col < len(matrix[0])
 }
 
-// TODO: Put the matched yellow chars in a string and when this is equal to word,
-// make the ui show the green word
-// Maybe they need to go in a map? something like that
-
 func searchWord(
 	matrix [][]rune,
 	row, col int,
@@ -46,17 +42,27 @@ func searchWord(
 	sigChan chan os.Signal,
 	ticker *time.Ticker,
 ) bool {
+	curWord := make(map[string][]int)
+
 	for i := 0; i < len(word); i++ {
 		var uiMatrix string
-		curWord := make(map[string][]int)
 
 		for j := range matrix {
 			for k := range matrix[j] {
 				if row == j && col == k {
 					curWord[string(matrix[j][k])] = []int{j, k}
-					for key := range curWord {
-						uiMatrix += yellow + key + reset
+				}
+
+				// TODO: Build up the string all at once then replace the individual
+				// chars after the whole thing is built
+
+				val, exists := curWord[string(matrix[j][k])]
+				if exists && len(curWord) == len(word) && val[0] == j && val[1] == k {
+					for range curWord {
+						uiMatrix += green + string(matrix[j][k]) + reset
 					}
+				} else if exists && val[0] == j && val[1] == k {
+					uiMatrix += yellow + string(matrix[j][k]) + reset
 				} else {
 					uiMatrix += string(matrix[j][k])
 				}
