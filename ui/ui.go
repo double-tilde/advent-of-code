@@ -3,6 +3,8 @@ package ui
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 )
 
@@ -12,18 +14,27 @@ const (
 	HideCursor  = "\033[?25l"
 )
 
-func DrawUI(text string) {
+func Draw(text string) {
 	fmt.Print(ClearScreen)
 	fmt.Print(text)
 }
 
-func CreateUI(text string, sigChan chan os.Signal, ticker *time.Ticker) {
+func Create(text string, sigChan chan os.Signal, ticker *time.Ticker) {
 	select {
 	case <-ticker.C:
-		DrawUI(text)
+		Draw(text)
 	case <-sigChan:
 		fmt.Println(ShowCursor)
 		fmt.Print(ClearScreen)
 		os.Exit(0)
 	}
+}
+
+func Setup(tick time.Duration) (chan os.Signal, *time.Ticker) {
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	ticker := time.NewTicker(time.Second / tick)
+	fmt.Print(HideCursor)
+
+	return sigChan, ticker
 }

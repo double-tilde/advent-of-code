@@ -5,8 +5,6 @@ import (
 	"aoc-2024/utils"
 	"fmt"
 	"os"
-	"os/signal"
-	"syscall"
 	"time"
 )
 
@@ -45,6 +43,7 @@ func searchWord(
 	curWord := make(map[string][]int)
 
 	for i := 0; i < len(word); i++ {
+
 		var uiMatrix string
 
 		for j := range matrix {
@@ -52,25 +51,26 @@ func searchWord(
 				if row == j && col == k {
 					curWord[string(matrix[j][k])] = []int{j, k}
 				}
+			}
+		}
 
-				// TODO: Build up the string all at once then replace the individual
-				// chars after the whole thing is built
+		for j := range matrix {
+			for k := range matrix[j] {
+				curChar := string(matrix[j][k])
 
 				val, exists := curWord[string(matrix[j][k])]
 				if exists && len(curWord) == len(word) && val[0] == j && val[1] == k {
-					for range curWord {
-						uiMatrix += green + string(matrix[j][k]) + reset
-					}
+					uiMatrix += green + curChar + reset
 				} else if exists && val[0] == j && val[1] == k {
-					uiMatrix += yellow + string(matrix[j][k]) + reset
+					uiMatrix += yellow + curChar + reset
 				} else {
-					uiMatrix += string(matrix[j][k])
+					uiMatrix += curChar
 				}
 			}
 			uiMatrix += "\n"
 		}
 
-		ui.CreateUI(uiMatrix, sigChan, ticker)
+		ui.Create(uiMatrix, sigChan, ticker)
 
 		if !isInBounds(matrix, row, col) || matrix[row][col] != rune(word[i]) {
 			return false
@@ -79,6 +79,7 @@ func searchWord(
 		row += dir[0]
 		col += dir[1]
 	}
+
 	return true
 }
 
@@ -87,11 +88,8 @@ func getCount(matrix [][]rune) int {
 	word := "XMAS"
 	count := 0
 
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	ticker := time.NewTicker(time.Second / 3)
+	sigChan, ticker := ui.Setup(4)
 	defer ticker.Stop()
-	fmt.Print(ui.HideCursor)
 
 	for row := range matrix {
 		for col := range matrix[row] {
