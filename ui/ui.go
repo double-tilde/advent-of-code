@@ -9,10 +9,18 @@ import (
 )
 
 const (
-	ClearScreen = "\033[H\033[2J"
-	ShowCursor  = "\033[?25h"
-	HideCursor  = "\033[?25l"
+	ClearScreen       = "\033[H\033[2J"
+	ShowCursor        = "\033[?25h"
+	HideCursor        = "\033[?25l"
+	Reset             = "\033[0m"
+	GreenBgBlackText  = "\033[42;30m"
+	YellowBgBlackText = "\033[43;30m"
 )
+
+func StringColor(s, c string) string {
+	s = c + s + Reset
+	return s
+}
 
 func Draw(text string) {
 	fmt.Print(ClearScreen)

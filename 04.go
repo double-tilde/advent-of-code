@@ -8,12 +8,6 @@ import (
 	"time"
 )
 
-var (
-	reset  = "\033[0m"
-	green  = "\033[32m"
-	yellow = "\033[33m"
-)
-
 func createMatrix(input []string) [][]rune {
 	var matrix [][]rune
 
@@ -59,9 +53,9 @@ func searchWord(
 
 				val, exists := curWord[string(matrix[j][k])]
 				if exists && len(curWord) == len(word) && val[0] == j && val[1] == k {
-					uiMatrix += green + curChar + reset
+					uiMatrix += ui.StringColor(curChar, ui.GreenBgBlackText)
 				} else if exists && val[0] == j && val[1] == k {
-					uiMatrix += yellow + curChar + reset
+					uiMatrix += ui.StringColor(curChar, ui.YellowBgBlackText)
 				} else {
 					uiMatrix += curChar
 				}
@@ -83,7 +77,7 @@ func getCount(matrix [][]rune) int {
 	word := "XMAS"
 	count := 0
 
-	sigChan, ticker := ui.Setup(8)
+	sigChan, ticker := ui.Setup(10)
 	defer ticker.Stop()
 
 	for row := range matrix {
