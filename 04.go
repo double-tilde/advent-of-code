@@ -43,15 +43,14 @@ func searchWord(
 	curWord := make(map[string][]int)
 
 	for i := 0; i < len(word); i++ {
+		if !isInBounds(matrix, row, col) || matrix[row][col] != rune(word[i]) {
+			return false
+		}
 
 		var uiMatrix string
 
-		for j := range matrix {
-			for k := range matrix[j] {
-				if row == j && col == k {
-					curWord[string(matrix[j][k])] = []int{j, k}
-				}
-			}
+		if matrix[row][col] == rune(word[i]) {
+			curWord[string(matrix[row][col])] = []int{row, col}
 		}
 
 		for j := range matrix {
@@ -72,10 +71,6 @@ func searchWord(
 
 		ui.Create(uiMatrix, sigChan, ticker)
 
-		if !isInBounds(matrix, row, col) || matrix[row][col] != rune(word[i]) {
-			return false
-		}
-
 		row += dir[0]
 		col += dir[1]
 	}
@@ -88,7 +83,7 @@ func getCount(matrix [][]rune) int {
 	word := "XMAS"
 	count := 0
 
-	sigChan, ticker := ui.Setup(4)
+	sigChan, ticker := ui.Setup(8)
 	defer ticker.Stop()
 
 	for row := range matrix {
