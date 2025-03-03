@@ -51,7 +51,7 @@ func searchWord(
 			for k := range matrix[j] {
 				curChar := string(matrix[j][k])
 
-				val, exists := curWord[string(matrix[j][k])]
+				val, exists := curWord[curChar]
 				if exists && len(curWord) == len(word) && val[0] == j && val[1] == k {
 					uiMatrix += ui.StringColor(curChar, ui.GreenBgBlackText)
 				} else if exists && val[0] == j && val[1] == k {
@@ -100,4 +100,5 @@ func fourthProblem() {
 	res := getCount(matrix)
 
 	fmt.Println("Fourth Problem:", res)
+	fmt.Println(ui.ShowCursor)
 }
