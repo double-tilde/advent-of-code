@@ -9,9 +9,9 @@ import (
 )
 
 type SearchInput struct {
-	word       string
-	directions [][]int
-	linear     bool
+	Word       string
+	Directions [][]int
+	Linear     bool
 }
 
 type WordPosition struct {
@@ -32,16 +32,6 @@ func createMatrix(strs []string) [][]string {
 	}
 
 	return matrix
-}
-
-func createSearchInput(w string, d [][]int, l bool) SearchInput {
-	si := SearchInput{
-		word:       w,
-		directions: d,
-		linear:     l,
-	}
-
-	return si
 }
 
 func isInBounds(matrix [][]string, row, col int) bool {
@@ -85,17 +75,17 @@ func linearWordSearch(
 ) bool {
 	curWord := []WordPosition{}
 
-	for i := 0; i < len(si.word); i++ {
+	for i := 0; i < len(si.Word); i++ {
 
-		if !isInBounds(matrix, row, col) || matrix[row][col] != string(si.word[i]) {
+		if !isInBounds(matrix, row, col) || matrix[row][col] != string(si.Word[i]) {
 			return false
 		}
 
-		if matrix[row][col] == string(si.word[i]) {
+		if matrix[row][col] == string(si.Word[i]) {
 			curWord = append(curWord, WordPosition{Char: matrix[row][col], Row: row, Col: col})
 		}
 
-		uiMatrix := createUI(matrix, len(si.word), curWord)
+		uiMatrix := createUI(matrix, len(si.Word), curWord)
 		ui.Create(uiMatrix, sigChan, ticker)
 
 		row += dir[0]
@@ -112,7 +102,7 @@ func shapedWordSearch(
 	sigChan chan os.Signal,
 	ticker *time.Ticker,
 ) bool {
-	dirs := si.directions
+	dirs := si.Directions
 	curWord := []WordPosition{}
 	var cRow, cCol, oppRow, oppCol int
 
@@ -124,7 +114,6 @@ func shapedWordSearch(
 			return false
 		}
 
-		// _, exists := curWord["A"]
 		exists := false
 		for _, char := range curWord {
 			if char.Char == "A" {
@@ -202,8 +191,8 @@ func getCount(matrix [][]string, si SearchInput, sigChan chan os.Signal, ticker 
 
 	for row := range matrix {
 		for col := range matrix[row] {
-			if si.linear {
-				for _, dir := range si.directions {
+			if si.Linear {
+				for _, dir := range si.Directions {
 					if linearWordSearch(matrix, row, col, si, dir, sigChan, ticker) {
 						count++
 					}
@@ -224,15 +213,19 @@ func fourthProblem() {
 
 	matrix := createMatrix(input)
 
-	// si1 := createSearchInput(
-	// 	"XMAS",
-	// 	[][]int{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}},
-	// 	true,
-	// )
+	// si1 := SearchInput{
+	// 	Word:       "XMAS",
+	// 	Directions: [][]int{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}},
+	// 	Linear:     true,
+	// }
 
-	si2 := createSearchInput("MAS", [][]int{{0, 0}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}}, false)
+	si2 := SearchInput{
+		Word:       "MAS",
+		Directions: [][]int{{0, 0}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}},
+		Linear:     false,
+	}
 
-	sigChan, ticker := ui.Setup(2)
+	sigChan, ticker := ui.Setup(10)
 	defer ticker.Stop()
 
 	res := getCount(matrix, si2, sigChan, ticker)
