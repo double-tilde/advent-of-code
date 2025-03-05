@@ -95,119 +95,88 @@ func linearWordSearch(
 	return true
 }
 
+// TODO: Make ui nice for new search method
 func shapedWordSearch(
 	matrix [][]string,
 	row, col int,
 	si SearchInput,
+	dir []int,
 	sigChan chan os.Signal,
 	ticker *time.Ticker,
-) bool {
-	dirs := si.Directions
-	curWord := []WordPosition{}
-	var cRow, cCol, oppRow, oppCol int
+) (bool, []WordPosition) {
+	var validWord []WordPosition
+	for i := 0; i < len(si.Word); i++ {
 
-	for _, dir := range dirs {
-		dRow := dir[0]
-		dCol := dir[1]
-
-		if !isInBounds(matrix, row, col) {
-			return false
+		if !isInBounds(matrix, row, col) || matrix[row][col] != string(si.Word[i]) {
+			return false, nil
 		}
 
-		exists := false
-		for _, char := range curWord {
-			if char.Char == "A" {
-				exists = true
-			}
+		if matrix[row][col] == string(si.Word[i]) {
+			validWord = append(
+				validWord,
+				WordPosition{Char: matrix[row][col], Row: row, Col: col},
+			)
 		}
 
-		if dRow == 0 && dCol == 0 && matrix[row][col] == "A" {
-			cRow = row
-			cCol = col
-			curWord = append(curWord, WordPosition{Char: matrix[cRow][cCol], Row: cRow, Col: cCol})
-		}
-
-		if !isInBounds(matrix, cRow+dRow, cCol+dCol) {
-			return false
-		}
-
-		if exists {
-			if dRow == 1 && dCol == 1 && (matrix[cRow+dRow][cCol+dCol] == "M" ||
-				matrix[cRow+dRow][cCol+dCol] == "S") {
-				oppRow = cRow + dRow
-				oppCol = cCol + dCol
-				curWord = append(
-					curWord,
-					WordPosition{Char: matrix[oppRow][oppCol], Row: oppRow, Col: oppCol},
-				)
-			}
-
-			if dRow == -1 && dCol == -1 &&
-				matrix[cRow+dRow][cCol+dCol] != matrix[oppRow][oppCol] &&
-				(matrix[cRow+dRow][cCol+dCol] == "M" ||
-					matrix[cRow+dRow][cCol+dCol] == "S") {
-				curWord = append(
-					curWord,
-					WordPosition{
-						Char: matrix[cRow+dRow][cCol+dCol],
-						Row:  cRow + dRow,
-						Col:  cCol + dCol,
-					},
-				)
-			}
-
-			// FIX: these are in a different order to the slice, so it breaks
-			// Make the slice sorted first?
-			if dRow == 1 && dCol == -1 && (matrix[cRow+dRow][cCol+dCol] == "M" ||
-				matrix[cRow+dRow][cCol+dCol] == "S") {
-				oppRow = cRow + dRow
-				oppCol = cCol + dCol
-				curWord = append(
-					curWord,
-					WordPosition{Char: matrix[oppRow][oppCol], Row: oppRow, Col: oppCol},
-				)
-			}
-
-			if dRow == -1 && dCol == 1 &&
-				matrix[cRow+dRow][cCol+dCol] != matrix[oppRow][oppCol] &&
-				(matrix[cRow+dRow][cCol+dCol] == "M" ||
-					matrix[cRow+dRow][cCol+dCol] == "S") {
-				curWord = append(
-					curWord,
-					WordPosition{
-						Char: matrix[cRow+dRow][cCol+dCol],
-						Row:  cRow + dRow,
-						Col:  cCol + dCol,
-					},
-				)
-			}
-		}
-
-		uiMatrix := createUI(matrix, len(dirs), curWord)
-		fmt.Println(uiMatrix)
+		// uiMatrix := createUI(matrix, len(si.Word), curWord)
+		// fmt.Println(uiMatrix)
 		// ui.Create(uiMatrix, sigChan, ticker)
+
+		row += dir[0]
+		col += dir[1]
 	}
 
-	return len(curWord) == 5
+	return true, validWord
+}
+
+func mappedWords(validWords [][]WordPosition) [][]WordPosition {
+	positionMap := make(map[string][][]WordPosition)
+
+	for _, word := range validWords {
+		for _, char := range word {
+			if char.Char == "A" {
+				key := fmt.Sprintf("%d-%d", char.Row, char.Col)
+				positionMap[key] = append(positionMap[key], word)
+				break
+			}
+		}
+	}
+
+	var result [][]WordPosition
+	for _, wordGroup := range positionMap {
+		if len(wordGroup) > 1 {
+			result = append(result, wordGroup...)
+		}
+	}
+
+	return result
 }
 
 func getCount(matrix [][]string, si SearchInput, sigChan chan os.Signal, ticker *time.Ticker) int {
 	count := 0
+	var validWords [][]WordPosition
 
 	for row := range matrix {
 		for col := range matrix[row] {
-			if si.isLinear {
-				for _, dir := range si.Directions {
+			for _, dir := range si.Directions {
+				if si.isLinear {
 					if linearWordSearch(matrix, row, col, si, dir, sigChan, ticker) {
 						count++
 					}
-				}
-			} else {
-				if shapedWordSearch(matrix, row, col, si, sigChan, ticker) {
-					count++
+				} else {
+					ok, validWord := shapedWordSearch(matrix, row, col, si, dir, sigChan, ticker)
+					if ok {
+						validWords = append(validWords, validWord)
+					}
 				}
 			}
 		}
+	}
+
+	// FIX: count is ugly, must be a better way to get this number
+	mappedWords := mappedWords(validWords)
+	if len(validWords) > 0 {
+		count = len(mappedWords) / 2
 	}
 
 	return count
@@ -220,26 +189,22 @@ func fourthProblem() {
 
 	// si1 := SearchInput{
 	// 	Word:       "XMAS",
-	// 	// b, br, r, tr, t, tl, l, bl
 	// 	Directions: [][]int{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}},
-	// 	isLinear:     true,
+	// 	isLinear:   true,
 	// }
 
 	si2 := SearchInput{
-		Word: "MAS",
-		// c, br, tl, bl, tr
-		// Directions: [][]int{{0, 0}, {1, 1}, {-1, -1}, {1, -1}, {-1, 1}},
-		Directions: [][]int{{0, 0}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}},
+		Word:       "MAS",
+		Directions: [][]int{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}},
 		isLinear:   false,
 	}
 
-	sigChan, ticker := ui.Setup(10)
+	sigChan, ticker := ui.Setup(20)
 	defer ticker.Stop()
 
 	// res1 := getCount(matrix, si1, sigChan, ticker)
 
 	res2 := getCount(matrix, si2, sigChan, ticker)
-	// fmt.Println("Fourth Problem:", res1, res2)
 	fmt.Println("Fourth Problem:", res2)
 
 	fmt.Println(ui.ShowCursor)
