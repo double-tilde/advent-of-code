@@ -95,7 +95,6 @@ func linearWordSearch(
 	return true
 }
 
-// TODO: Make ui nice for new search method
 func shapedWordSearch(
 	matrix [][]string,
 	row, col int,
@@ -118,6 +117,7 @@ func shapedWordSearch(
 			)
 		}
 
+		// NOTE: Make ui nice for new search method, it might need to be in a different func
 		// uiMatrix := createUI(matrix, len(si.Word), curWord)
 		// fmt.Println(uiMatrix)
 		// ui.Create(uiMatrix, sigChan, ticker)
@@ -172,6 +172,7 @@ func getCount(matrix [][]string, si SearchInput, sigChan chan os.Signal, ticker 
 		}
 	}
 
+	// NOTE: This being done here is a bit strane, move this eventually
 	mappedWords := mappedWords(validWords)
 	if len(validWords) > 0 {
 		count = len(mappedWords)
