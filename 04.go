@@ -129,7 +129,7 @@ func shapedWordSearch(
 	return true, validWord
 }
 
-func mappedWords(validWords [][]WordPosition) [][]WordPosition {
+func mappedWords(validWords [][]WordPosition) map[string][][]WordPosition {
 	positionMap := make(map[string][][]WordPosition)
 
 	for _, word := range validWords {
@@ -142,14 +142,13 @@ func mappedWords(validWords [][]WordPosition) [][]WordPosition {
 		}
 	}
 
-	var result [][]WordPosition
-	for _, wordGroup := range positionMap {
-		if len(wordGroup) > 1 {
-			result = append(result, wordGroup...)
+	for k, v := range positionMap {
+		if len(v) <= 1 {
+			delete(positionMap, k)
 		}
 	}
 
-	return result
+	return positionMap
 }
 
 func getCount(matrix [][]string, si SearchInput, sigChan chan os.Signal, ticker *time.Ticker) int {
@@ -173,10 +172,9 @@ func getCount(matrix [][]string, si SearchInput, sigChan chan os.Signal, ticker 
 		}
 	}
 
-	// FIX: count is ugly, must be a better way to get this number
 	mappedWords := mappedWords(validWords)
 	if len(validWords) > 0 {
-		count = len(mappedWords) / 2
+		count = len(mappedWords)
 	}
 
 	return count
