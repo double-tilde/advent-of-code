@@ -49,23 +49,26 @@ func Matrix(
 
 	highlightMap := make(map[[2]int]string)
 
-	for pos, char := range word {
-		if pos == searchLen-1 {
-			highlightMap[[2]int{char.Row, char.Col}] = GreenBgBlackText
+	var sb []model.WordPosition
+	for _, char := range word {
+		sb = append(sb, char)
+		if len(sb) == searchLen {
+			for _, b := range sb {
+				highlightMap[[2]int{b.Row, b.Col}] = GreenBgBlackText
+			}
 		} else {
 			highlightMap[[2]int{char.Row, char.Col}] = YellowBgBlackText
 		}
-	}
-
-	for j := range matrix {
-		for k := range matrix[j] {
-			if color, exists := highlightMap[[2]int{j, k}]; exists {
-				uiMatrix += StringColor(matrix[j][k], color)
-			} else {
-				uiMatrix += matrix[j][k]
+		for j := range matrix {
+			for k := range matrix[j] {
+				if color, exists := highlightMap[[2]int{j, k}]; exists {
+					uiMatrix += StringColor(matrix[j][k], color)
+				} else {
+					uiMatrix += matrix[j][k]
+				}
 			}
+			uiMatrix += "\n"
 		}
-		uiMatrix += "\n"
 	}
 
 	Create(uiMatrix, sigChan, ticker)
