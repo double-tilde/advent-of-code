@@ -1,24 +1,11 @@
 package main
 
 import (
+	"aoc-2024/model"
 	"aoc-2024/ui"
 	"aoc-2024/utils"
 	"fmt"
-	"os"
-	"time"
 )
-
-type SearchInput struct {
-	Word       string
-	Directions [][]int
-	isLinear   bool
-}
-
-type WordPosition struct {
-	Char string
-	Row  int
-	Col  int
-}
 
 func createMatrix(strs []string) [][]string {
 	matrix := [][]string{}
@@ -38,72 +25,22 @@ func isInBounds(matrix [][]string, row, col int) bool {
 	return row >= 0 && row < len(matrix) && col >= 0 && col < len(matrix[0])
 }
 
-func createUI(matrix [][]string, searchLen int, curWord []WordPosition) string {
-	var uiMatrix string
-
-	highlightMap := make(map[[2]int]string)
-
-	for _, char := range curWord {
-		if len(curWord) == searchLen {
-			highlightMap[[2]int{char.Row, char.Col}] = ui.GreenBgBlackText
-		} else {
-			highlightMap[[2]int{char.Row, char.Col}] = ui.YellowBgBlackText
+func validPairs(positionMap map[string][][]model.WordPosition) map[string][][]model.WordPosition {
+	for k, v := range positionMap {
+		if len(v) <= 1 {
+			delete(positionMap, k)
 		}
 	}
-
-	for j := range matrix {
-		for k := range matrix[j] {
-			if color, exists := highlightMap[[2]int{j, k}]; exists {
-				uiMatrix += ui.StringColor(matrix[j][k], color)
-			} else {
-				uiMatrix += matrix[j][k]
-			}
-		}
-		uiMatrix += "\n"
-	}
-
-	return uiMatrix
+	return positionMap
 }
 
-func linearWordSearch(
+func wordSearch(
 	matrix [][]string,
 	row, col int,
-	si SearchInput,
+	si model.SearchInput,
 	dir []int,
-	sigChan chan os.Signal,
-	ticker *time.Ticker,
-) bool {
-	curWord := []WordPosition{}
-
-	for i := 0; i < len(si.Word); i++ {
-
-		if !isInBounds(matrix, row, col) || matrix[row][col] != string(si.Word[i]) {
-			return false
-		}
-
-		if matrix[row][col] == string(si.Word[i]) {
-			curWord = append(curWord, WordPosition{Char: matrix[row][col], Row: row, Col: col})
-		}
-
-		uiMatrix := createUI(matrix, len(si.Word), curWord)
-		ui.Create(uiMatrix, sigChan, ticker)
-
-		row += dir[0]
-		col += dir[1]
-	}
-
-	return true
-}
-
-func shapedWordSearch(
-	matrix [][]string,
-	row, col int,
-	si SearchInput,
-	dir []int,
-	sigChan chan os.Signal,
-	ticker *time.Ticker,
-) (bool, []WordPosition) {
-	var validWord []WordPosition
+) (bool, []model.WordPosition) {
+	var validWord []model.WordPosition
 	for i := 0; i < len(si.Word); i++ {
 
 		if !isInBounds(matrix, row, col) || matrix[row][col] != string(si.Word[i]) {
@@ -113,14 +50,9 @@ func shapedWordSearch(
 		if matrix[row][col] == string(si.Word[i]) {
 			validWord = append(
 				validWord,
-				WordPosition{Char: matrix[row][col], Row: row, Col: col},
+				model.WordPosition{Char: matrix[row][col], Row: row, Col: col},
 			)
 		}
-
-		// NOTE: Make ui nice for new search method, it might need to be in a different func
-		// uiMatrix := createUI(matrix, len(si.Word), curWord)
-		// fmt.Println(uiMatrix)
-		// ui.Create(uiMatrix, sigChan, ticker)
 
 		row += dir[0]
 		col += dir[1]
@@ -129,8 +61,8 @@ func shapedWordSearch(
 	return true, validWord
 }
 
-func mappedWords(validWords [][]WordPosition) map[string][][]WordPosition {
-	positionMap := make(map[string][][]WordPosition)
+func mappedWords(validWords [][]model.WordPosition) map[string][][]model.WordPosition {
+	positionMap := make(map[string][][]model.WordPosition)
 
 	for _, word := range validWords {
 		for _, char := range word {
@@ -142,43 +74,27 @@ func mappedWords(validWords [][]WordPosition) map[string][][]WordPosition {
 		}
 	}
 
-	for k, v := range positionMap {
-		if len(v) <= 1 {
-			delete(positionMap, k)
-		}
-	}
-
 	return positionMap
 }
 
-func getCount(matrix [][]string, si SearchInput, sigChan chan os.Signal, ticker *time.Ticker) int {
-	count := 0
-	var validWords [][]WordPosition
+func getWords(
+	matrix [][]string,
+	si model.SearchInput,
+) [][]model.WordPosition {
+	var validWords [][]model.WordPosition
 
 	for row := range matrix {
 		for col := range matrix[row] {
 			for _, dir := range si.Directions {
-				if si.isLinear {
-					if linearWordSearch(matrix, row, col, si, dir, sigChan, ticker) {
-						count++
-					}
-				} else {
-					ok, validWord := shapedWordSearch(matrix, row, col, si, dir, sigChan, ticker)
-					if ok {
-						validWords = append(validWords, validWord)
-					}
+				ok, validWord := wordSearch(matrix, row, col, si, dir)
+				if ok {
+					validWords = append(validWords, validWord)
 				}
 			}
 		}
 	}
 
-	// NOTE: This being done here is a bit strane, move this eventually
-	mappedWords := mappedWords(validWords)
-	if len(validWords) > 0 {
-		count = len(mappedWords)
-	}
-
-	return count
+	return validWords
 }
 
 func fourthProblem() {
@@ -186,25 +102,49 @@ func fourthProblem() {
 
 	matrix := createMatrix(input)
 
-	// si1 := SearchInput{
-	// 	Word:       "XMAS",
-	// 	Directions: [][]int{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}},
-	// 	isLinear:   true,
-	// }
-
-	si2 := SearchInput{
-		Word:       "MAS",
-		Directions: [][]int{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}},
-		isLinear:   false,
+	si1 := model.SearchInput{
+		Word:       "XMAS",
+		Directions: [][]int{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}},
 	}
 
-	sigChan, ticker := ui.Setup(20)
+	sigChan, ticker := ui.Setup(2)
 	defer ticker.Stop()
 
-	// res1 := getCount(matrix, si1, sigChan, ticker)
+	validWords := getWords(matrix, si1)
+	count := 0
 
-	res2 := getCount(matrix, si2, sigChan, ticker)
-	fmt.Println("Fourth Problem:", res2)
+	mw := mappedWords(validWords)
+
+	for _, words := range mw {
+		for _, word := range words {
+			ui.Matrix(matrix, len(si1.Word), word, sigChan, ticker)
+			count++
+		}
+	}
+
+	// si2 := model.SearchInput{
+	// 	Word:       "MAS",
+	// 	Directions: [][]int{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}},
+	// }
+	//
+	// validWords2 := getWords(matrix, si2)
+	// count2 := 0
+	//
+	// mw2 := mappedWords(validWords2)
+	// mw2 = validPairs(mw2)
+	// if len(validWords2) > 0 {
+	// 	count2 = len(mw)
+	// }
+	//
+	// for _, words := range mw2 {
+	// 	for _, word := range words {
+	// 		uiMatrix := ui.Matrix(matrix, (len(si2.Word) * 2), word)
+	// 		ui.Create(uiMatrix, sigChan, ticker)
+	// 	}
+	// }
+
+	fmt.Println("Fourth Problem:", count)
+	// fmt.Println("Fourth Problem:", count, count2)
 
 	fmt.Println(ui.ShowCursor)
 }
