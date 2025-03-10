@@ -33,7 +33,6 @@ func Setup(tick time.Duration) (chan os.Signal, *time.Ticker) {
 }
 
 func Draw(text string) {
-	fmt.Print(ClearScreen)
 	fmt.Print(text)
 }
 
@@ -44,7 +43,6 @@ func Matrix(
 	sigChan chan os.Signal,
 	ticker *time.Ticker,
 ) {
-	// FIX: highlighting
 	var uiMatrix string
 
 	highlightMap := make(map[[2]int]string)
@@ -59,6 +57,7 @@ func Matrix(
 		} else {
 			highlightMap[[2]int{char.Row, char.Col}] = YellowBgBlackText
 		}
+
 		for j := range matrix {
 			for k := range matrix[j] {
 				if color, exists := highlightMap[[2]int{j, k}]; exists {
@@ -69,14 +68,15 @@ func Matrix(
 			}
 			uiMatrix += "\n"
 		}
+		Create(uiMatrix, sigChan, ticker)
 	}
-
-	Create(uiMatrix, sigChan, ticker)
 }
 
 func Create(text string, sigChan chan os.Signal, ticker *time.Ticker) {
 	select {
 	case <-ticker.C:
+		// FIX: highlighting
+		fmt.Print(ClearScreen)
 		Draw(text)
 	case <-sigChan:
 		fmt.Println(ShowCursor)
