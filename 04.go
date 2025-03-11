@@ -97,7 +97,7 @@ func getWords(
 	return validWords
 }
 
-func fourthProblem() {
+func FourthProblem() {
 	input := utils.GetLineSeperatedRecords("./assets/04-file.txt")
 
 	matrix := createMatrix(input)

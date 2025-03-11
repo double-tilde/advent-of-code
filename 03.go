@@ -82,7 +82,7 @@ func calculateProduct(numPairs [][]int) int {
 	return res
 }
 
-func thirdProblem() {
+func ThirdProblem() {
 	input := utils.GetOneString("./assets/03-file.txt")
 
 	validFuncs := findValidFuncs(input)

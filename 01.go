@@ -48,7 +48,7 @@ func compare(m map[int]int, s []int) int {
 	return sum
 }
 
-func firstProblem() {
+func FirstProblem() {
 	l1 := utils.GetIntRecords("./assets/01-list1.csv")
 	l2 := utils.GetIntRecords("./assets/01-list2.csv")
 

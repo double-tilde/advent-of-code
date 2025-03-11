@@ -105,7 +105,7 @@ func loop(sliceOfLevels [][]int) int {
 	return safeLevels
 }
 
-func secondProblem() {
+func SecondProblem() {
 	sliceOfLevels := utils.GetSpaceSeperatedNums("./assets/02-file.txt")
 
 	safe := loop(sliceOfLevels)
