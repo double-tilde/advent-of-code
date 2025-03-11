@@ -43,12 +43,11 @@ func Matrix(
 	sigChan chan os.Signal,
 	ticker *time.Ticker,
 ) {
-	var uiMatrix string
-
 	highlightMap := make(map[[2]int]string)
 
 	var sb []model.WordPosition
 	for _, char := range word {
+		var uiMatrix string
 		sb = append(sb, char)
 		if len(sb) == searchLen {
 			for _, b := range sb {
@@ -75,7 +74,6 @@ func Matrix(
 func Create(text string, sigChan chan os.Signal, ticker *time.Ticker) {
 	select {
 	case <-ticker.C:
-		// FIX: highlighting
 		fmt.Print(ClearScreen)
 		Draw(text)
 	case <-sigChan:

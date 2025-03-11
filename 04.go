@@ -107,13 +107,16 @@ func fourthProblem() {
 		Directions: [][]int{{1, 0}, {1, 1}, {0, 1}, {-1, 1}, {-1, 0}, {-1, -1}, {0, -1}, {1, -1}},
 	}
 
-	sigChan, ticker := ui.Setup(2)
+	sigChan, ticker := ui.Setup(10)
 	defer ticker.Stop()
 
 	validWords := getWords(matrix, si1)
 	count := 0
 
 	mw := mappedWords(validWords)
+
+	fmt.Println(mw)
+	fmt.Println("")
 
 	for _, words := range mw {
 		for _, word := range words {
@@ -122,29 +125,30 @@ func fourthProblem() {
 		}
 	}
 
-	// si2 := model.SearchInput{
-	// 	Word:       "MAS",
-	// 	Directions: [][]int{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}},
-	// }
-	//
-	// validWords2 := getWords(matrix, si2)
-	// count2 := 0
-	//
-	// mw2 := mappedWords(validWords2)
-	// mw2 = validPairs(mw2)
-	// if len(validWords2) > 0 {
-	// 	count2 = len(mw)
-	// }
-	//
-	// for _, words := range mw2 {
-	// 	for _, word := range words {
-	// 		uiMatrix := ui.Matrix(matrix, (len(si2.Word) * 2), word)
-	// 		ui.Create(uiMatrix, sigChan, ticker)
-	// 	}
-	// }
+	si2 := model.SearchInput{
+		Word:       "MAS",
+		Directions: [][]int{{1, 1}, {-1, 1}, {-1, -1}, {1, -1}},
+	}
 
-	fmt.Println("Fourth Problem:", count)
-	// fmt.Println("Fourth Problem:", count, count2)
+	validWords2 := getWords(matrix, si2)
+	count2 := 0
 
+	mw2 := mappedWords(validWords2)
+	mw2 = validPairs(mw2)
+	if len(validWords2) > 0 {
+		count2 = len(mw2)
+	}
+
+	for _, words := range mw2 {
+		var allWords []model.WordPosition
+		for _, word := range words {
+			allWords = append(allWords, word...)
+			if len(allWords) == len(si2.Word)*2 {
+				ui.Matrix(matrix, (len(si2.Word) * 2), allWords, sigChan, ticker)
+			}
+		}
+	}
+
+	fmt.Println("Fourth Problem:", count, count2)
 	fmt.Println(ui.ShowCursor)
 }
