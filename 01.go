@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aoc-2024/utils"
+	"aoc-2024/get"
 	"fmt"
 )
 
@@ -49,8 +49,8 @@ func compare(m map[int]int, s []int) int {
 }
 
 func FirstProblem() {
-	l1 := utils.GetIntRecords("./assets/01-list1.csv")
-	l2 := utils.GetIntRecords("./assets/01-list2.csv")
+	l1 := get.IntSliceFromCSV("./assets/01-list1.csv")
+	l2 := get.IntSliceFromCSV("./assets/01-list2.csv")
 
 	sortList(l1)
 	sortList(l2)

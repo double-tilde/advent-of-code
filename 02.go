@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aoc-2024/utils"
+	"aoc-2024/get"
 	"fmt"
 )
 
@@ -106,7 +106,7 @@ func loop(sliceOfLevels [][]int) int {
 }
 
 func SecondProblem() {
-	sliceOfLevels := utils.GetSpaceSeperatedNums("./assets/02-file.txt")
+	sliceOfLevels := get.IntMatrixFromFile("./assets/02-file.txt")
 
 	safe := loop(sliceOfLevels)
 	fmt.Println("Problem 2:", safe)

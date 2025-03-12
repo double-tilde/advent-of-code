@@ -3,6 +3,7 @@ package main
 import "fmt"
 
 func FifthProblem() {
+	input := utils.GetDelimSeperated
 	// 47|53
 	// 97|13
 	// 97|61

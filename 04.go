@@ -1,9 +1,9 @@
 package main
 
 import (
+	"aoc-2024/get"
 	"aoc-2024/model"
 	"aoc-2024/ui"
-	"aoc-2024/utils"
 	"fmt"
 )
 
@@ -98,7 +98,7 @@ func getWords(
 }
 
 func FourthProblem() {
-	input := utils.GetLineSeperatedRecords("./assets/04-file.txt")
+	input := get.StringSliceFromFile("./assets/04-file.txt")
 
 	matrix := createMatrix(input)
 

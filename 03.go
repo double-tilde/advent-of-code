@@ -1,7 +1,7 @@
 package main
 
 import (
-	"aoc-2024/utils"
+	"aoc-2024/get"
 	"cmp"
 	"fmt"
 	"regexp"
@@ -83,7 +83,7 @@ func calculateProduct(numPairs [][]int) int {
 }
 
 func ThirdProblem() {
-	input := utils.GetOneString("./assets/03-file.txt")
+	input := get.StringFromFile("./assets/03-file.txt")
 
 	validFuncs := findValidFuncs(input)
 

@@ -1,4 +1,4 @@
-package utils
+package get
 
 import (
 	"bufio"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func GetIntRecords(file string) []int {
+func IntSliceFromCSV(file string) []int {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatal("Error opening file", err)
@@ -43,9 +43,7 @@ func GetIntRecords(file string) []int {
 	return nums
 }
 
-func GetSpaceSeperatedNums(file string) [][]int {
-	var sliceOfNums [][]int
-
+func IntMatrixFromFile(file string) [][]int {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatal("Error opening file", err)
@@ -54,25 +52,26 @@ func GetSpaceSeperatedNums(file string) [][]int {
 
 	scanner := bufio.NewScanner(f)
 
+	var intMatrix [][]int
+
 	for scanner.Scan() {
-		var lineNums []int
+		var intSlice []int
 		fields := strings.Fields(scanner.Text())
+
 		for _, field := range fields {
 			num, err := strconv.Atoi(field)
 			if err != nil {
 				log.Fatal("String is not an int", err)
 			}
-			lineNums = append(lineNums, num)
+			intSlice = append(intSlice, num)
 		}
-		sliceOfNums = append(sliceOfNums, lineNums)
+		intMatrix = append(intMatrix, intSlice)
 	}
 
-	return sliceOfNums
+	return intMatrix
 }
 
-func GetOneString(file string) string {
-	var s string
-
+func StringFromFile(file string) string {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatal("Error opening file", err)
@@ -81,6 +80,7 @@ func GetOneString(file string) string {
 
 	scanner := bufio.NewScanner(f)
 
+	var s string
 	for scanner.Scan() {
 		strs := strings.Fields(scanner.Text())
 
@@ -92,9 +92,7 @@ func GetOneString(file string) string {
 	return s
 }
 
-func GetLineSeperatedRecords(file string) []string {
-	records := []string{}
-
+func StringSliceFromFile(file string) []string {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatal("Error opening file", err)
@@ -103,11 +101,27 @@ func GetLineSeperatedRecords(file string) []string {
 
 	scanner := bufio.NewScanner(f)
 
+	records := []string{}
 	for scanner.Scan() {
 		strs := scanner.Text()
-
 		records = append(records, strs)
 	}
 
 	return records
+}
+
+func IntMatrixWithDelim(file string) [][]int {
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal("Error opeing file", err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	var intMatrix [][]int
+
+	// TODO: delim
+
+	return intMatrix
 }
