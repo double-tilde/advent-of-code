@@ -110,7 +110,7 @@ func StringSliceFromFile(file string) []string {
 	return records
 }
 
-func IntMatrixWithDelim(file string) [][]int {
+func IntMatrixPipeDelim(file string) [][]int {
 	f, err := os.Open(file)
 	if err != nil {
 		log.Fatal("Error opeing file", err)
@@ -120,8 +120,57 @@ func IntMatrixWithDelim(file string) [][]int {
 	scanner := bufio.NewScanner(f)
 
 	var intMatrix [][]int
+	for scanner.Scan() {
+		var intSlice []int
+		str := scanner.Text()
+		if str == "" {
+			break
+		}
+		strSlice := strings.Split(str, "|")
 
-	// TODO: delim
+		for _, item := range strSlice {
+			num, err := strconv.Atoi(item)
+			if err != nil {
+				log.Fatal("String is not an int", err)
+			}
+			intSlice = append(intSlice, num)
+		}
+		intMatrix = append(intMatrix, intSlice)
+
+	}
+
+	return intMatrix
+}
+
+func IntMatrixCommaDelim(file string) [][]int {
+	f, err := os.Open(file)
+	if err != nil {
+		log.Fatal("Error opeing file", err)
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+
+	var intMatrix [][]int
+	for scanner.Scan() {
+		var intSlice []int
+		str := scanner.Text()
+		if str == "" || strings.Contains(str, "|") {
+			continue
+		}
+
+		strSlice := strings.Split(str, ",")
+
+		for _, item := range strSlice {
+			num, err := strconv.Atoi(item)
+			if err != nil {
+				log.Fatal("String is not an int", err)
+			}
+			intSlice = append(intSlice, num)
+		}
+		intMatrix = append(intMatrix, intSlice)
+
+	}
 
 	return intMatrix
 }
