@@ -5,11 +5,55 @@ import (
 	"fmt"
 )
 
+func getSlicePairs(s []int) [][]int {
+	var sm [][]int
+	for i := 0; i < len(s); i++ {
+		for j := 0; j < len(s); j++ {
+			var sp []int
+			if j == i {
+				continue
+			}
+			sp = append(sp, s[i], s[j])
+			sm = append(sm, sp)
+		}
+	}
+	return sm
+}
+
+func compareSlices(rulesSet [][]int, pages []int) bool {
+	for i := range rulesSet {
+		fmt.Println("comparing", rulesSet[i][0], rulesSet[i][1], "with", pages[0], pages[1])
+		if rulesSet[i][0] == pages[1] && rulesSet[i][1] == pages[0] {
+			fmt.Println("wrong order", rulesSet[i][0], rulesSet[i][1], "see", pages[0], pages[1])
+			return false
+		}
+		fmt.Println("right order", rulesSet[i][0], rulesSet[i][1], "see", pages[0], pages[1])
+	}
+	return true
+}
+
 func FifthProblem() {
-	rules := get.IntMatrixPipeDelim("./assets/05-file.txt")
-	pages := get.IntMatrixCommaDelim("./assets/05-file.txt")
-	fmt.Println(rules)
-	fmt.Println(pages)
+	rulesSet := get.IntMatrixPipeDelim("./assets/05-file.txt")
+	pagesSet := get.IntMatrixCommaDelim("./assets/05-file.txt")
+
+	var selectedPages [][]int
+	var goodPages [][]int
+	for _, pages := range pagesSet {
+		ok := true
+		selectedPages = getSlicePairs(pages)
+
+		for i := 0; i < len(selectedPages); i++ {
+			ok = compareSlices(rulesSet, selectedPages[i])
+			if !ok {
+				break
+			}
+		}
+
+		if ok {
+			goodPages = append(goodPages, pages)
+		}
+		fmt.Println(goodPages)
+	}
 
 	// 1. For the rules, create a [][]int with the first num as [i][0] and the second as [i][1]
 	//    The pipe can be used as the deliminator
