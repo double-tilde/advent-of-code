@@ -38,17 +38,19 @@ func compareSlices(rulesSet [][]int, pos, vals []int) ([]int, []int, bool) {
 	return nil, nil, true
 }
 
+func comparePage(pageSet [][]int) {
+}
+
 func FifthProblem() {
 	rulesSet := get.IntMatrixPipeDelim("./assets/05-file.txt")
 	pagesSet := get.IntMatrixCommaDelim("./assets/05-file.txt")
 
-	var selectedPages []model.Pair
 	var goodPages [][]int
-	var badPages [][]int
+	var correctedPages [][]int
 
 	for _, pages := range pagesSet {
-		ok := true
-		selectedPages = getSlicePairs(pages)
+		ok, corrected := true, false
+		selectedPages := getSlicePairs(pages)
 
 		for i := 0; i < len(selectedPages); i++ {
 			pos, vals, ok := compareSlices(
@@ -57,14 +59,19 @@ func FifthProblem() {
 				selectedPages[i].Values,
 			)
 			if !ok {
-				badPages = append(badPages, pages)
-				fmt.Println(pos, vals)
+				corrected = true
+				pages[pos[0]] = vals[1]
+				pages[pos[1]] = vals[0]
 				break
 			}
 		}
 
-		if ok {
+		if ok && !corrected {
 			goodPages = append(goodPages, pages)
+		}
+
+		if ok && corrected {
+			correctedPages = append(correctedPages, pages)
 		}
 	}
 
@@ -75,7 +82,7 @@ func FifthProblem() {
 	}
 
 	var res2 int
-	for _, pages := range badPages {
+	for _, pages := range correctedPages {
 		mp := len(pages) / 2
 		res2 += pages[mp]
 	}
