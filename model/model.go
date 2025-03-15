@@ -10,3 +10,8 @@ type WordPosition struct {
 	Row  int
 	Col  int
 }
+
+type Pair struct {
+	Positions []int
+	Values    []int
+}
