@@ -38,7 +38,26 @@ func compareSlices(rulesSet [][]int, pos, vals []int) ([]int, []int, bool) {
 	return nil, nil, true
 }
 
-func comparePage(pageSet [][]int) {
+func checkPages(rulesSet [][]int, pages []int) ([]int, bool) {
+	var ok bool
+	selectedPages := getSlicePairs(pages)
+
+	// TODO: fix the copying problem, night need pointers or make sure model.pair is correct
+
+	for i := 0; i < len(selectedPages); i++ {
+		pos, vals, ok := compareSlices(
+			rulesSet,
+			selectedPages[i].Positions,
+			selectedPages[i].Values,
+		)
+
+		if !ok {
+			pages[pos[0]] = vals[1]
+			pages[pos[1]] = vals[0]
+		}
+	}
+
+	return pages, ok
 }
 
 func FifthProblem() {
@@ -46,34 +65,48 @@ func FifthProblem() {
 	pagesSet := get.IntMatrixCommaDelim("./assets/05-file.txt")
 
 	var goodPages [][]int
-	var correctedPages [][]int
+	var incorrectPages [][]int
 
 	for _, pages := range pagesSet {
-		ok, corrected := true, false
+		ok, incorrect := true, false
 		selectedPages := getSlicePairs(pages)
 
 		for i := 0; i < len(selectedPages); i++ {
-			pos, vals, ok := compareSlices(
+			_, _, ok := compareSlices(
 				rulesSet,
 				selectedPages[i].Positions,
 				selectedPages[i].Values,
 			)
 			if !ok {
-				corrected = true
-				pages[pos[0]] = vals[1]
-				pages[pos[1]] = vals[0]
+				incorrect = true
 				break
 			}
 		}
 
-		if ok && !corrected {
+		if ok && !incorrect {
 			goodPages = append(goodPages, pages)
 		}
 
-		if ok && corrected {
-			correctedPages = append(correctedPages, pages)
+		if ok && incorrect {
+			incorrectPages = append(incorrectPages, pages)
 		}
 	}
+
+	fmt.Println(goodPages)
+	fmt.Println(incorrectPages)
+
+	var correctedPages [][]int
+
+	for _, pages := range incorrectPages {
+		p, ok := checkPages(rulesSet, pages)
+
+		if !ok {
+			checkPages(rulesSet, p)
+		}
+		correctedPages = append(correctedPages, p)
+	}
+
+	fmt.Println(correctedPages)
 
 	var res int
 	for _, pages := range goodPages {
