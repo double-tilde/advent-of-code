@@ -42,26 +42,25 @@ func FifthProblem() {
 
 	for _, pages := range pagesSet {
 
-		ordered, correct := true, true
 		selectedPages := getSlicePairs(pages)
 
+		correct := true
 		for i := 0; i < len(selectedPages); i++ {
-			_, _, ordered := compareSlices(
+			_, _, correct = compareSlices(
 				rulesSet,
 				selectedPages[i].Positions,
 				selectedPages[i].Values,
 			)
-			if !ordered {
-				correct = false
+			if !correct {
 				break
 			}
 		}
 
-		if ordered && correct {
+		if correct {
 			correctPages = append(correctPages, pages)
 		}
 
-		if ordered && !correct {
+		if !correct {
 			incorrectPages = append(incorrectPages, pages)
 		}
 
@@ -70,18 +69,42 @@ func FifthProblem() {
 	fmt.Println(correctPages)
 	fmt.Println(incorrectPages)
 
+	var correctedPages [][]int
+	// TODO: Makes this part recursive
+
+	for _, pages := range incorrectPages {
+		selectedPages := getSlicePairs(pages)
+
+		correct := true
+		vals := []int{}
+		for i := 0; i < len(selectedPages); i++ {
+			_, vals, correct = compareSlices(
+				rulesSet,
+				selectedPages[i].Positions,
+				selectedPages[i].Values,
+			)
+
+			if !correct {
+				for j := range pages {
+					if pages[j] == vals[0] {
+						pages[j] = vals[1]
+					}
+
+					if pages[j] == vals[1] {
+						pages[j] = vals[0]
+					}
+				}
+				break
+			}
+		}
+
+	}
+
 	var res int
 	for _, pages := range correctPages {
 		mp := len(pages) / 2
 		res += pages[mp]
 	}
 
-	// var res2 int
-	// for _, pages := range correctedPages {
-	// 	mp := len(pages) / 2
-	// 	res2 += pages[mp]
-	// }
-
 	fmt.Println("Fifth Problem:", res)
-	// fmt.Println("Fifth Problem:", res, res2)
 }
