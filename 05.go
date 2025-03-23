@@ -11,19 +11,14 @@ func getSlicePairs(s []int) []model.Pair {
 
 	for i := 0; i < len(s); i++ {
 		for j := 0; j < len(s); j++ {
-			if j == i {
+			if j <= i {
 				continue
 			}
 
 			lhs, rhs := s[i], s[j]
 			posL, posR := i, j
-			if j < i {
-				lhs, rhs = rhs, lhs
-				posL, posR = j, i
-			}
 
 			pairs = append(pairs, model.Pair{Positions: []int{posL, posR}, Values: []int{lhs, rhs}})
-
 		}
 	}
 	return pairs
@@ -38,87 +33,55 @@ func compareSlices(rulesSet [][]int, pos, vals []int) ([]int, []int, bool) {
 	return nil, nil, true
 }
 
-func checkPages(rulesSet [][]int, pages []int) ([]int, bool) {
-	var ok bool
-	selectedPages := getSlicePairs(pages)
-
-	// TODO: fix the copying problem, night need pointers or make sure model.pair is correct
-
-	for i := 0; i < len(selectedPages); i++ {
-		pos, vals, ok := compareSlices(
-			rulesSet,
-			selectedPages[i].Positions,
-			selectedPages[i].Values,
-		)
-
-		if !ok {
-			pages[pos[0]] = vals[1]
-			pages[pos[1]] = vals[0]
-		}
-	}
-
-	return pages, ok
-}
-
 func FifthProblem() {
 	rulesSet := get.IntMatrixPipeDelim("./assets/05-file.txt")
 	pagesSet := get.IntMatrixCommaDelim("./assets/05-file.txt")
 
-	var goodPages [][]int
+	var correctPages [][]int
 	var incorrectPages [][]int
 
 	for _, pages := range pagesSet {
-		ok, incorrect := true, false
+
+		ordered, correct := true, true
 		selectedPages := getSlicePairs(pages)
 
 		for i := 0; i < len(selectedPages); i++ {
-			_, _, ok := compareSlices(
+			_, _, ordered := compareSlices(
 				rulesSet,
 				selectedPages[i].Positions,
 				selectedPages[i].Values,
 			)
-			if !ok {
-				incorrect = true
+			if !ordered {
+				correct = false
 				break
 			}
 		}
 
-		if ok && !incorrect {
-			goodPages = append(goodPages, pages)
+		if ordered && correct {
+			correctPages = append(correctPages, pages)
 		}
 
-		if ok && incorrect {
+		if ordered && !correct {
 			incorrectPages = append(incorrectPages, pages)
 		}
+
 	}
 
-	fmt.Println(goodPages)
+	fmt.Println(correctPages)
 	fmt.Println(incorrectPages)
 
-	var correctedPages [][]int
-
-	for _, pages := range incorrectPages {
-		p, ok := checkPages(rulesSet, pages)
-
-		if !ok {
-			checkPages(rulesSet, p)
-		}
-		correctedPages = append(correctedPages, p)
-	}
-
-	fmt.Println(correctedPages)
-
 	var res int
-	for _, pages := range goodPages {
+	for _, pages := range correctPages {
 		mp := len(pages) / 2
 		res += pages[mp]
 	}
 
-	var res2 int
-	for _, pages := range correctedPages {
-		mp := len(pages) / 2
-		res2 += pages[mp]
-	}
+	// var res2 int
+	// for _, pages := range correctedPages {
+	// 	mp := len(pages) / 2
+	// 	res2 += pages[mp]
+	// }
 
-	fmt.Println("Fifth Problem:", res, res2)
+	fmt.Println("Fifth Problem:", res)
+	// fmt.Println("Fifth Problem:", res, res2)
 }
