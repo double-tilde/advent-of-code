@@ -10,11 +10,7 @@ func getSlicePairs(s []int) []model.Pair {
 	var pairs []model.Pair
 
 	for i := 0; i < len(s); i++ {
-		for j := 0; j < len(s); j++ {
-			if j <= i {
-				continue
-			}
-
+		for j := i + 1; j < len(s); j++ {
 			lhs, rhs := s[i], s[j]
 			posL, posR := i, j
 
@@ -24,87 +20,77 @@ func getSlicePairs(s []int) []model.Pair {
 	return pairs
 }
 
-func compareSlices(rulesSet [][]int, pos, vals []int) ([]int, []int, bool) {
+func compareSlices(rulesSet [][]int, vals []int) bool {
 	for i := range rulesSet {
 		if rulesSet[i][0] == vals[1] && rulesSet[i][1] == vals[0] {
-			return pos, vals, false
+			return false
 		}
 	}
-	return nil, nil, true
+	return true
 }
 
-func FifthProblem() {
-	rulesSet := get.IntMatrixPipeDelim("./assets/05-file.txt")
-	pagesSet := get.IntMatrixCommaDelim("./assets/05-file.txt")
+func checkPages(rulesSet, startingPages [][]int, recursive bool) ([][]int, [][]int) {
+	correctPages, incorrectPages := [][]int{}, [][]int{}
 
-	var correctPages [][]int
-	var incorrectPages [][]int
+	for _, pages := range startingPages {
 
-	for _, pages := range pagesSet {
-
-		selectedPages := getSlicePairs(pages)
+		selectedPairs := getSlicePairs(pages)
 
 		correct := true
-		for i := 0; i < len(selectedPages); i++ {
-			_, _, correct = compareSlices(
-				rulesSet,
-				selectedPages[i].Positions,
-				selectedPages[i].Values,
-			)
-			if !correct {
+		for _, pairs := range selectedPairs {
+			if !compareSlices(rulesSet, pairs.Values) {
+				if recursive {
+					pages[pairs.Positions[0]], pages[pairs.Positions[1]] = pages[pairs.Positions[1]], pages[pairs.Positions[0]]
+				}
+				correct = false
 				break
 			}
-		}
-
-		if correct {
-			correctPages = append(correctPages, pages)
 		}
 
 		if !correct {
 			incorrectPages = append(incorrectPages, pages)
 		}
 
-	}
-
-	fmt.Println(correctPages)
-	fmt.Println(incorrectPages)
-
-	var correctedPages [][]int
-	// TODO: Makes this part recursive
-
-	for _, pages := range incorrectPages {
-		selectedPages := getSlicePairs(pages)
-
-		correct := true
-		vals := []int{}
-		for i := 0; i < len(selectedPages); i++ {
-			_, vals, correct = compareSlices(
-				rulesSet,
-				selectedPages[i].Positions,
-				selectedPages[i].Values,
-			)
-
-			if !correct {
-				for j := range pages {
-					if pages[j] == vals[0] {
-						pages[j] = vals[1]
-					}
-
-					if pages[j] == vals[1] {
-						pages[j] = vals[0]
-					}
-				}
-				break
-			}
+		if correct {
+			correctPages = append(correctPages, pages)
 		}
 
 	}
 
+	return correctPages, incorrectPages
+}
+
+func addUpMedian(intMatrix [][]int) int {
 	var res int
-	for _, pages := range correctPages {
-		mp := len(pages) / 2
-		res += pages[mp]
+	for _, ints := range intMatrix {
+		mp := len(ints) / 2
+		res += ints[mp]
 	}
 
-	fmt.Println("Fifth Problem:", res)
+	return res
+}
+
+func FifthProblem() {
+	rulesSet := get.IntMatrixPipeDelim("./assets/05-file.txt")
+	pagesSet := get.IntMatrixCommaDelim("./assets/05-file.txt")
+
+	correctPages, incorrectPages := checkPages(rulesSet, pagesSet, false)
+
+	var correctedPages [][]int
+	for {
+		tempCorrectedPages, stillIncorrectPages := checkPages(rulesSet, incorrectPages, true)
+
+		correctedPages = append(correctedPages, tempCorrectedPages...)
+
+		if len(stillIncorrectPages) == 0 {
+			break
+		}
+
+		incorrectPages = stillIncorrectPages
+	}
+
+	res := addUpMedian(correctPages)
+	res2 := addUpMedian(correctedPages)
+
+	fmt.Println("Fifth Problem:", res, res2)
 }
