@@ -6,6 +6,8 @@ import (
 	"fmt"
 )
 
+// TODO: Make faster, see note
+
 func getSlicePairs(s []int) []model.Pair {
 	var pairs []model.Pair
 
@@ -34,6 +36,7 @@ func checkPages(rulesSet, startingPages [][]int, recursive bool) ([][]int, [][]i
 
 	for _, pages := range startingPages {
 
+		// NOTE: I feel like doing this over and over is not good
 		selectedPairs := getSlicePairs(pages)
 
 		correct := true
