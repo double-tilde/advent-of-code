@@ -31,18 +31,18 @@ func compareSlices(rulesSet [][]int, vals []int) bool {
 	return true
 }
 
-func checkPages(rulesSet, startingPages [][]int, recursive bool) ([][]int, [][]int) {
+// NOTE: use go routines and channels, see my sandbox for how to do it
+func checkPages(rulesSet, startingPages [][]int, swap bool) ([][]int, [][]int) {
 	correctPages, incorrectPages := [][]int{}, [][]int{}
 
 	for _, pages := range startingPages {
 
-		// NOTE: I feel like doing this over and over is not good
 		selectedPairs := getSlicePairs(pages)
 
 		correct := true
 		for _, pairs := range selectedPairs {
 			if !compareSlices(rulesSet, pairs.Values) {
-				if recursive {
+				if swap {
 					pages[pairs.Positions[0]], pages[pairs.Positions[1]] = pages[pairs.Positions[1]], pages[pairs.Positions[0]]
 				}
 				correct = false
