@@ -24,4 +24,4 @@
 
 ## Years
 
-- 2024 (Go)
+- 2024 (Go, Python)
