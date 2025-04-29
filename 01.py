@@ -32,6 +32,28 @@ def is_list_only_ints(lst):
     return num_lst
 
 
+def compare_lists(lst_1, lst_2):
+    dct = {}
+    diff = []
+    res = 0
+
+    for idx, val in enumerate(lst_1):
+        dct[idx] = val
+
+    for idx, val in enumerate(lst_2):
+        if dct[idx] == val:
+            continue
+        if dct[idx] > val:
+            diff.append(dct[idx] - val)
+        if dct[idx] < val:
+            diff.append(val - dct[idx])
+
+    for idx, val in enumerate(diff):
+        res += val
+
+    return res
+
+
 def main():
     sorted_li1 = None
     sorted_li2 = None
@@ -50,8 +72,9 @@ def main():
     if num_li2:
         sorted_li2 = sorted(num_li2)
 
-    print(li1, li2)
-    print(sorted_li1, sorted_li2)
+    res = compare_lists(sorted_li1, sorted_li2)
+
+    print(res)
 
 
 if __name__ == "__main__":
